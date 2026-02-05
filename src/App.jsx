@@ -56,11 +56,12 @@ function App() {
       // ✅ Use environment variable instead of localhost
       const API_URL = import.meta.env.VITE_API_URL;
 
-      const response = await fetch(`${API_URL}/api/feedback`, {
+      const response = await fetch("/.netlify/functions/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(feedbackData),
       });
+
 
       if (response.ok) {
         setSubmitted(true);
