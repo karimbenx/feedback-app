@@ -3,7 +3,6 @@ import "./App.css";
 
 function App() {
   const [dark, setDark] = useState(false);
-
   const [regNo, setRegNo] = useState("");
   const [name, setName] = useState("");
   const [deptYear, setDeptYear] = useState("");
@@ -12,7 +11,7 @@ function App() {
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [submitted, setSubmitted] = useState(false); // ✅ new state
+  const [submitted, setSubmitted] = useState(false);
 
   const suggestions = ["Excellent", "Good", "Average", "Bad", "Needs Improvement"];
 
@@ -54,17 +53,16 @@ function App() {
     const feedbackData = { regNo, name, deptYear, comment, rating };
 
     try {
-      const response = await fetch("http://localhost:5000/api/feedback", {
+      const API_URL = import.meta.env.VITE_API_URL;
+
+      const response = await fetch(`${API_URL}/api/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(feedbackData),
       });
 
       if (response.ok) {
-        // ✅ Show submitted screen
         setSubmitted(true);
-
-        // Reset form values
         setRegNo("");
         setName("");
         setDeptYear("");
@@ -80,17 +78,13 @@ function App() {
     }
   };
 
-  // ✅ If submitted, show confirmation screen
   if (submitted) {
     return (
       <div className={`page ${dark ? "dark" : ""}`}>
         <div className="submitted-card">
           <h1>✅ Feedback Submitted!</h1>
           <p>Thank you for your response.</p>
-          <button
-            className="go-back-btn"
-            onClick={() => setSubmitted(false)}
-          >
+          <button className="go-back-btn" onClick={() => setSubmitted(false)}>
             Go Back
           </button>
         </div>
@@ -98,7 +92,6 @@ function App() {
     );
   }
 
-  // ✅ Otherwise show form
   return (
     <div className={`page ${dark ? "dark" : ""}`}>
       <div className="toggle-wrapper">
@@ -109,7 +102,6 @@ function App() {
 
       <div className="form-card">
         <h1>Feedback Form</h1>
-
         <form onSubmit={handleSubmit}>
           {/* Register Number */}
           <div className="form-group">
