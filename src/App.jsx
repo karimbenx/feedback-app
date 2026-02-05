@@ -53,6 +53,7 @@ function App() {
     const feedbackData = { regNo, name, deptYear, comment, rating };
 
     try {
+      // ✅ Use environment variable instead of localhost
       const API_URL = import.meta.env.VITE_API_URL;
 
       const response = await fetch(`${API_URL}/api/feedback`, {
