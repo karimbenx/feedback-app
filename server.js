@@ -20,7 +20,6 @@ app.post("/api/feedback", (req, res) => {
 
     let workbook, worksheet, data;
 
-    // If file exists, read it
     if (fs.existsSync(filePath)) {
         workbook = XLSX.readFile(filePath);
         worksheet = workbook.Sheets["Feedbacks"];
@@ -30,7 +29,6 @@ app.post("/api/feedback", (req, res) => {
         data = [];
     }
 
-    // Add new row
     data.push({
         RegNo: regNo,
         Name: name,
@@ -40,16 +38,12 @@ app.post("/api/feedback", (req, res) => {
         CreatedAt: new Date().toLocaleString(),
     });
 
-    // Convert back to worksheet
     worksheet = XLSX.utils.json_to_sheet(data);
-
-    // ✅ Replace existing sheet instead of appending
     workbook.Sheets["Feedbacks"] = worksheet;
     if (!workbook.SheetNames.includes("Feedbacks")) {
         workbook.SheetNames.push("Feedbacks");
     }
 
-    // Save Excel file
     XLSX.writeFile(workbook, filePath);
 
     console.log("✅ Feedback saved to Excel!");
@@ -65,8 +59,10 @@ app.get("/api/feedback/excel", (req, res) => {
     }
 });
 
-app.listen(5000, () => {
-    console.log("🚀 Server running on port 5000");
-    console.log("📍 POST http://localhost:5000/api/feedback");
-    console.log("📍 GET http://localhost:5000/api/feedback/excel");
+// ✅ Only one listen call
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 POST http://localhost:${PORT}/api/feedback`);
+    console.log(`📍 GET http://localhost:${PORT}/api/feedback/excel`);
 });
