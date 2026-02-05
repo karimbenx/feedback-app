@@ -1,23 +1,19 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import pkg from "pg";   // Postgres client
-import XLSX from "xlsx";
+import fetch from "node-fetch"; // install with npm i node-fetch
 
-const { Pool } = pkg;
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// ✅ Connect to Neon DB using DATABASE_URL env variable
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL, // set in Render
-    ssl: { rejectUnauthorized: false }          // Neon requires SSL
-});
+// Neon REST API base URL
+const NEON_API_URL = "https://ep-snowy-tree-ajjbtg0y.apirest.c-3.us-east-2.aws.neon.tech/neondb/rest/v1";
+const NEON_API_KEY = process.env.NEON_API_KEY; // set in Render/Netlify env vars
 
 // Root route
 app.get("/", (req, res) => {
-    res.send("✅ Feedback backend with Neon DB is running!");
+    res.send("✅ Feedback backend with Neon REST API is running!");
 });
 
 // POST endpoint to save feedback
@@ -29,42 +25,49 @@ app.post("/api/feedback", async (req, res) => {
     }
 
     try {
-        await pool.query(
-            `INSERT INTO feedbacks (regno, name, deptyear, comment, rating, created_at)
-       VALUES ($1, $2, $3, $4, $5, NOW())`,
-            [regNo, name, deptYear, comment, rating]
-        );
-        console.log("✅ Feedback saved to Neon DB!");
-        res.json({ message: "Feedback saved to Neon DB ✓" });
+        const response = await fetch(`${NEON_API_URL}/feedbacks`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "apikey": NEON_API_KEY,
+            },
+            body: JSON.stringify({
+                regno: regNo,
+                name,
+                deptyear: deptYear,
+                comment,
+                rating,
+                created_at: new Date().toISOString(),
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Neon API error: ${response.statusText}`);
+        }
+
+        res.json({ message: "Feedback saved to Neon REST ✓" });
     } catch (err) {
-        console.error("❌ DB Error:", err);
+        console.error("❌ Neon REST Error:", err);
         res.status(500).json({ error: "Database error" });
     }
 });
 
-// GET endpoint to download Excel file generated from Neon DB
-app.get("/api/feedback/excel", async (req, res) => {
+// GET endpoint to fetch feedbacks
+app.get("/api/feedback", async (req, res) => {
     try {
-        const result = await pool.query("SELECT * FROM feedbacks ORDER BY created_at DESC");
-        const worksheet = XLSX.utils.json_to_sheet(result.rows);
-        const workbook = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(workbook, worksheet, "Feedbacks");
+        const response = await fetch(`${NEON_API_URL}/feedbacks?order=created_at.desc`, {
+            headers: { "apikey": NEON_API_KEY },
+        });
 
-        // Write to a temporary file
-        const filePath = "/tmp/feedbacks.xlsx";
-        XLSX.writeFile(workbook, filePath);
-
-        res.download(filePath);
+        const data = await response.json();
+        res.json(data);
     } catch (err) {
-        console.error("❌ Excel export error:", err);
-        res.status(500).send("Error generating Excel");
+        console.error("❌ Neon REST fetch error:", err);
+        res.status(500).send("Error fetching feedbacks");
     }
 });
 
-// ✅ Only one listen call
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📍 POST http://localhost:${PORT}/api/feedback`);
-    console.log(`📍 GET http://localhost:${PORT}/api/feedback/excel`);
 });
