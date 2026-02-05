@@ -1,70 +1,63 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
-import fs from "fs";
+import pkg from "pg";   // Postgres client
 import XLSX from "xlsx";
 
+const { Pool } = pkg;
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const filePath = "feedbacks.xlsx";
+// ✅ Connect to Neon DB using DATABASE_URL env variable
+const pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+    ssl: { rejectUnauthorized: false }, // Neon requires SSL
+});
 
-// ✅ Root route to confirm backend is alive
+// Root route
 app.get("/", (req, res) => {
-    res.send("✅ Feedback backend is running!");
+    res.send("✅ Feedback backend with Neon DB is running!");
 });
 
 // POST endpoint to save feedback
-app.post("/api/feedback", (req, res) => {
+app.post("/api/feedback", async (req, res) => {
     const { regNo, name, deptYear, comment, rating } = req.body;
 
     if (!regNo || !name || !deptYear || !rating) {
         return res.status(400).json({ error: "Missing required fields" });
     }
 
-    let workbook, worksheet, data;
-
-    // If file exists, read it; else create new
-    if (fs.existsSync(filePath)) {
-        workbook = XLSX.readFile(filePath);
-        worksheet = workbook.Sheets["Feedbacks"];
-        data = worksheet ? XLSX.utils.sheet_to_json(worksheet) : [];
-    } else {
-        workbook = XLSX.utils.book_new();
-        data = [];
+    try {
+        await pool.query(
+            `INSERT INTO feedbacks (regno, name, deptyear, comment, rating, created_at)
+       VALUES ($1, $2, $3, $4, $5, NOW())`,
+            [regNo, name, deptYear, comment, rating]
+        );
+        console.log("✅ Feedback saved to Neon DB!");
+        res.json({ message: "Feedback saved to Neon DB ✓" });
+    } catch (err) {
+        console.error("❌ DB Error:", err);
+        res.status(500).json({ error: "Database error" });
     }
-
-    // Add new row
-    data.push({
-        RegNo: regNo,
-        Name: name,
-        DeptYear: deptYear,
-        Comment: comment,
-        Rating: rating,
-        CreatedAt: new Date().toLocaleString(),
-    });
-
-    // Convert back to worksheet
-    worksheet = XLSX.utils.json_to_sheet(data);
-    workbook.Sheets["Feedbacks"] = worksheet;
-    if (!workbook.SheetNames.includes("Feedbacks")) {
-        workbook.SheetNames.push("Feedbacks");
-    }
-
-    // Save Excel file
-    XLSX.writeFile(workbook, filePath);
-
-    console.log("✅ Feedback saved to Excel!");
-    res.json({ message: "Feedback saved to Excel ✓" });
 });
 
-// GET endpoint to download Excel file
-app.get("/api/feedback/excel", (req, res) => {
-    if (fs.existsSync(filePath)) {
+// GET endpoint to download Excel file generated from Neon DB
+app.get("/api/feedback/excel", async (req, res) => {
+    try {
+        const result = await pool.query("SELECT * FROM feedbacks ORDER BY created_at DESC");
+        const worksheet = XLSX.utils.json_to_sheet(result.rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Feedbacks");
+
+        // Write to a temporary file
+        const filePath = "/tmp/feedbacks.xlsx";
+        XLSX.writeFile(workbook, filePath);
+
         res.download(filePath);
-    } else {
-        res.status(404).send("No feedbacks yet.");
+    } catch (err) {
+        console.error("❌ Excel export error:", err);
+        res.status(500).send("Error generating Excel");
     }
 });
 
