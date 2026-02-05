@@ -11,8 +11,8 @@ app.use(bodyParser.json());
 
 // ✅ Connect to Neon DB using DATABASE_URL env variable
 const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }, // Neon requires SSL
+    connectionString: process.env.DATABASE_URL, // set in Render
+    ssl: { rejectUnauthorized: false }          // Neon requires SSL
 });
 
 // Root route
