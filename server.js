@@ -10,6 +10,11 @@ app.use(bodyParser.json());
 
 const filePath = "feedbacks.xlsx";
 
+// ✅ Root route to confirm backend is alive
+app.get("/", (req, res) => {
+    res.send("✅ Feedback backend is running!");
+});
+
 // POST endpoint to save feedback
 app.post("/api/feedback", (req, res) => {
     const { regNo, name, deptYear, comment, rating } = req.body;
@@ -20,6 +25,7 @@ app.post("/api/feedback", (req, res) => {
 
     let workbook, worksheet, data;
 
+    // If file exists, read it; else create new
     if (fs.existsSync(filePath)) {
         workbook = XLSX.readFile(filePath);
         worksheet = workbook.Sheets["Feedbacks"];
@@ -29,6 +35,7 @@ app.post("/api/feedback", (req, res) => {
         data = [];
     }
 
+    // Add new row
     data.push({
         RegNo: regNo,
         Name: name,
@@ -38,12 +45,14 @@ app.post("/api/feedback", (req, res) => {
         CreatedAt: new Date().toLocaleString(),
     });
 
+    // Convert back to worksheet
     worksheet = XLSX.utils.json_to_sheet(data);
     workbook.Sheets["Feedbacks"] = worksheet;
     if (!workbook.SheetNames.includes("Feedbacks")) {
         workbook.SheetNames.push("Feedbacks");
     }
 
+    // Save Excel file
     XLSX.writeFile(workbook, filePath);
 
     console.log("✅ Feedback saved to Excel!");
