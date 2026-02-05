@@ -37,7 +37,7 @@ app.post("/api/feedback", (req, res) => {
         DeptYear: deptYear,
         Comment: comment,
         Rating: rating,
-        CreatedAt: new Date().toISOString(),
+        CreatedAt: new Date().toLocaleString(),
     });
 
     // Convert back to worksheet

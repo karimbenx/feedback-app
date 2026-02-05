@@ -197,3 +197,29 @@ textarea {
   background-color: #0056b3;
   /* Darker blue on hover */
 }
+
+.submitted-card {
+  background-color: #f9f9f9;
+  /* light background */
+  padding: 30px;
+  border-radius: 10px;
+  border: 2px solid #007bff;
+  /* blue frame */
+  max-width: 400px;
+  /* limit width */
+  margin: 100px auto;
+  /* center horizontally + spacing from top */
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  /* subtle shadow */
+}
+
+/* ✅ Night mode frame */
+.dark .submitted-card {
+  background-color: #222;
+  /* dark background */
+  border: 2px solid #007bff;
+  /* keep blue frame */
+  color: white;
+  /* text turns white */
+}

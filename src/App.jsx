@@ -87,7 +87,6 @@ function App() {
         <div className="submitted-card">
           <h1>✅ Feedback Submitted!</h1>
           <p>Thank you for your response.</p>
-          {/* Blue Go Back button */}
           <button
             className="go-back-btn"
             onClick={() => setSubmitted(false)}
