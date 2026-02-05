@@ -1,0 +1,199 @@
+* {
+  box-sizing: border-box;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Page */
+.page {
+  min-height: 100vh;
+  background: #f1f3f4;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
+.page.dark {
+  background: #121212;
+}
+
+/* Toggle */
+.toggle-wrapper {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+}
+
+.theme-toggle {
+  background: #1a73e8;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+/* Card */
+.form-card {
+  width: 100%;
+  max-width: 720px;
+  background: white;
+  border-radius: 18px;
+  padding: 40px 45px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.18);
+}
+
+.page.dark .form-card {
+  background: #1e1e1e;
+  color: white;
+}
+
+/* Heading */
+.form-card h1 {
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 24px;
+}
+
+label {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 14px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.page.dark input,
+.page.dark select,
+.page.dark textarea {
+  background: #2a2a2a;
+  color: white;
+  border-color: #444;
+}
+
+textarea {
+  resize: vertical;
+}
+
+/* Error (aesthetic) */
+.error-text {
+  margin-top: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #b3261e;
+  background: #fdecea;
+  border: 1px solid #f9c6c4;
+  animation: fadeIn 0.25s ease-in;
+}
+
+.page.dark .error-text {
+  color: #f28b82;
+  background: #2b1d1d;
+  border-color: #5f2b2b;
+}
+
+/* Submit */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  background: #1a73e8;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+/* Stars */
+.stars {
+  font-size: 32px;
+  cursor: pointer;
+}
+
+.star {
+  color: #ccc;
+  margin-right: 6px;
+}
+
+.star.active {
+  color: #fbbc04;
+}
+
+/* Suggestions */
+.suggestions {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: #e8f0fe;
+  color: #1a73e8;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.page.dark .chip {
+  background: #333;
+  color: #90caf9;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .form-card {
+    padding: 30px 25px;
+  }
+
+  .form-card h1 {
+    font-size: 26px;
+  }
+}
+
+.go-back-btn {
+  background-color: #007bff;
+  /* Bootstrap blue */
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.go-back-btn:hover {
+  background-color: #0056b3;
+  /* Darker blue on hover */
+}
